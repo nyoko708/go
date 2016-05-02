@@ -2,15 +2,17 @@ package main
 
 import (
 	"log"
+	"sync"
 )
 
-func f(ch chan bool) {
-	ch <- true
-}
-
 func main() {
-	ch := make(chan bool)
-	go f(ch)
-
-	log.Println(<-ch)
+	var wg sync.WaitGroup
+	for i := 0; i < 3; i++ {
+		wg.Add(1) // goroutine を生成するたびインクリメント
+		go func(i int) {
+			log.Println(i)
+			wg.Done() // 終了時にデクリメント
+		}(i)
+	}
+	wg.Wait() // ブロックし、全ての Done が終わったら次に進む
 }
